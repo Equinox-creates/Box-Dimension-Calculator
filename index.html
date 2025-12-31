@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Box Dimension Calculator</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Animated Background -->
@@ -18,19 +19,16 @@
         <!-- Header with Logo -->
         <div class="logo">
             <div class="logo-svg">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="cubeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#ee6cff;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#3cb8ff;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <!-- 3D Cube Animation -->
-                    <g class="cube">
-                        <polygon points="30,30 70,30 70,70 30,70" fill="url(#cubeGrad)" opacity="0.8" class="cube-face"/>
-                        <polygon points="30,30 50,10 70,30 50,50" fill="url(#cubeGrad)" opacity="1" class="cube-face"/>
-                        <polygon points="70,30 90,10 90,50 70,70" fill="url(#cubeGrad)" opacity="0.6" class="cube-face"/>
-                    </g>
+                <!-- Replaced logo: 3D Hexagon icon scaled to fit -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon icon-tabler icon-tabler-hexagon-3d" aria-hidden="true" focusable="false">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M19 6.844a2.007 2.007 0 0 1 1 1.752v6.555c0 .728 -.394 1.399 -1.03 1.753l-6 3.844a2 2 0 0 1 -1.942 0l-6 -3.844a2.007 2.007 0 0 1 -1.029 -1.752v-6.556c0 -.729 .394 -1.4 1.029 -1.753l6 -3.583a2.05 2.05 0 0 1 2 0l6 3.584h-.03z" />
+                    <path d="M12 16.5v4.5" />
+                    <path d="M4.5 7.5l3.5 2.5" />
+                    <path d="M16 10l4 -2.5" />
+                    <path d="M12 7.5v4.5l-4 2" />
+                    <path d="M12 12l4 2" />
+                    <path d="M12 16.5l4 -2.5v-4l-4 -2.5l-4 2.5v4z" />
                 </svg>
             </div>
             <h1>Box Dimension<span>Calculator</span></h1>
@@ -91,8 +89,8 @@
             </a>
         </div>
 
-        <!-- Notification Message -->
-        <div id="notification" class="notification"></div>
+        <!-- Toast container (toasts are inserted here) -->
+        <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
         <!-- Footer -->
         <div class="footer">
@@ -109,7 +107,7 @@
         body {
             color: #ffffff;
             background: #0f0f1f;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
         }
@@ -195,17 +193,18 @@
         .logo-svg svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 20px #ee6cff);
-            animation: rotateCube 6s linear infinite;
+            color: var(--accent1);
+            filter: drop-shadow(0 8px 28px rgba(238,108,255,0.18));
+            transition: transform 220ms ease, filter 220ms ease;
+            will-change: transform;
         }
 
-        @keyframes rotateCube {
-            0% { transform: rotateX(0deg) rotateY(0deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg); }
+        .logo-svg:hover svg {
+            transform: translateY(-4px) scale(1.03);
+            filter: drop-shadow(0 12px 36px rgba(238,108,255,0.24));
         }
 
         .cube-face {
-            animation: cubeFace 3s ease-in-out infinite;
         }
 
         .logo h1 {
@@ -426,6 +425,12 @@
             border-radius: 8px;
             margin-bottom: 12px;
             animation: slideIn 0.5s ease-out forwards;
+            transition: transform 220ms ease, box-shadow 220ms ease;
+        }
+
+        .result:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(2,6,23,0.45);
         }
 
         .result:nth-child(1) { animation-delay: 0.1s; }
@@ -550,127 +555,185 @@
             font-weight: 600;
         }
 
-        /* Notification Styling */
-        .notification {
+        /* Toast container and toast styling */
+        :root {
+            --accent1: #ee6cff;
+            --accent2: #3cb8ff;
+            --accent3: #00ff88;
+            --bg: #0f0f1f;
+            --glass: rgba(255,255,255,0.06);
+        }
+
+        .toast-container {
             position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+            width: calc(100% - 40px);
+            max-width: 420px;
+        }
+
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: #ffffff;
+            background: linear-gradient(180deg, rgba(10,12,20,0.72), rgba(15,15,26,0.6));
+            backdrop-filter: blur(8px) saturate(120%);
+            -webkit-backdrop-filter: blur(8px) saturate(120%);
+            box-shadow: 0 14px 40px rgba(2,6,23,0.6);
+            border: 1px solid rgba(255,255,255,0.04);
+            transform: translateX(18px) translateY(-6px) scale(0.98);
+            opacity: 0;
+            transition: opacity 300ms ease, transform 360ms cubic-bezier(.2,.9,.2,1);
+            font-weight: 700;
+        }
+
+        /* Enter/exit keyframes */
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(18px) translateY(-6px) scale(0.98); }
+            to   { opacity: 1; transform: translateX(0) translateY(0) scale(1); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0) translateY(0) scale(1); }
+            to   { opacity: 0; transform: translateX(18px) translateY(-6px) scale(0.98); }
+        }
+
+        .toast.show {
+            animation: toastIn 360ms cubic-bezier(.2,.9,.2,1) forwards;
+        }
+
+        .toast.hide {
+            animation: toastOut 260ms cubic-bezier(.33,.9,.2,1) forwards;
+        }
+
+        .toast .toast-icon {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18) inset;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Icon ring for subtle neon pulse */
+        .toast .icon-ring {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #ee6cff, #3cb8ff);
-            color: white;
-            padding: 24px 40px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: 0 20px 60px rgba(238, 108, 255, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(20px);
-            z-index: 9999;
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            filter: blur(8px);
+            opacity: 0.18;
+            mix-blend-mode: screen;
+            animation: ringPulse 2000ms infinite ease-in-out;
+        }
+
+        @keyframes ringPulse {
+            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.14; }
+            50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.22; }
+            100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.14; }
+        }
+
+        .toast .toast-body {
+            flex: 1 1 auto;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            max-width: 85%;
-            pointer-events: all;
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.5);
-            text-align: center;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.96rem;
+            color: #eaf6ff;
+            line-height: 1.2;
         }
 
-        .notification.show {
-            opacity: 1;
-            animation: notificationShowBetter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        .toast .toast-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--accent2);
+            letter-spacing: 0.2px;
         }
 
-        .notification.hide {
-            animation: notificationHideBetter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        .toast .toast-text {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: rgba(234,246,255,0.9);
         }
 
-        @keyframes notificationShowBetter {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.3) rotateY(-90deg);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.08) rotateY(10deg);
-            }
-            100% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1) rotateY(0deg);
-            }
+        /* Close button */
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: rgba(234,246,255,0.9);
+            font-size: 16px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 8px;
+            opacity: 0.0;
+            transition: opacity 180ms ease, transform 160ms ease;
+            font-weight: 600;
         }
 
-        @keyframes notificationHideBetter {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1) rotateY(0deg);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.08) rotateY(-10deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.3) rotateY(90deg);
-            }
+        .toast:hover .toast-close { opacity: 1; }
+
+        .toast-close:hover { opacity: 0.7; }
+
+        .toast-close:active { transform: scale(0.96); }
+
+        .toast .toast-progress {
+            position: relative;
+            height: 4px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: 12px;
+            width: 60px;
+            flex: 0 0 60px;
         }
 
-        .notification::before {
-            font-size: 1.5rem;
-            animation: iconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
+        .toast .toast-progress > i {
+            display: block;
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transform-origin: left center;
+            box-shadow: 0 6px 18px rgba(110,50,200,0.08) inset;
         }
 
-        @keyframes iconBounce {
-            0% {
-                transform: scale(0) rotateZ(-180deg);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1) rotateZ(0deg);
-            }
+        /* Colored icon backgrounds */
+        .toast.error .toast-icon { background: transparent; }
+        .toast.success .toast-icon { background: transparent; }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .toast, .toast.show, .toast.hide { animation: none !important; transition: none !important; }
+            .toast .toast-progress > i { transition: none !important; }
         }
 
-        /* Error notification variant */
-        .notification.error {
-            background: linear-gradient(135deg, #ff6b6b, #ee6cff);
-        }
-
-        /* Success notification variant */
-        .notification.success {
-            background: linear-gradient(135deg, #00ff88, #3cb8ff);
-        }
-
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .notification {
-                padding: 20px 30px;
-                font-size: 1rem;
-                max-width: 90%;
-                gap: 12px;
-            }
-
-            .notification::before {
-                font-size: 1.3rem;
-            }
+            .toast-container { left: 50%; right: auto; transform: translateX(-50%); width: calc(100% - 32px); max-width: 540px; top: 12px; }
+            .logo h1 { font-size: 2.1rem; }
         }
 
         @media (max-width: 480px) {
-            .notification {
-                padding: 16px 24px;
-                font-size: 0.95rem;
-                max-width: 92%;
-                gap: 10px;
-                border-radius: 15px;
-            }
-
-            .notification::before {
-                font-size: 1.2rem;
-            }
+            .toast { padding: 10px 12px; border-radius: 10px; }
+            .toast .toast-icon { width: 30px; height: 30px; font-size: 16px; }
+            .toast .toast-progress { width: 48px; }
         }
 
         /* Scrollbar Styling */
@@ -714,29 +777,115 @@
         const volumeInput = document.getElementById('volume');
         const calculateBtn = document.getElementById('calculate');
         const resultsDiv = document.getElementById('results');
-        const notificationDiv = document.getElementById('notification');
+        const toastContainer = document.getElementById('toast-container');
 
-        // Function to show notification with type
+        // Function to show toast notifications (non-blocking)
         function showNotification(message, type = 'error', duration = 3500) {
-            // Clear any existing classes
-            notificationDiv.classList.remove('error', 'success', 'show', 'hide');
-            
-            // Set the message content
-            notificationDiv.textContent = message;
-            
-            // Add appropriate class for styling
-            notificationDiv.classList.add(type);
-            
-            // Show the notification
-            notificationDiv.classList.add('show');
+            // create elements
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-atomic', 'true');
 
-            // Auto-hide after duration
-            setTimeout(() => {
-                if (notificationDiv.classList.contains('show')) {
-                    notificationDiv.classList.remove('show');
-                    notificationDiv.classList.add('hide');
-                }
-            }, duration);
+            const iconWrap = document.createElement('div');
+            iconWrap.className = 'toast-icon';
+            // Inline SVG icons to keep crisp and match accents
+            const successSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95" /><path d="M3.69 8.56a9 9 0 0 0 -.69 3.44" /><path d="M3.69 15.44a9 9 0 0 0 1.95 2.92" /><path d="M8.56 20.31a9 9 0 0 0 3.44 .69" /><path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95" /><path d="M20.31 15.44a9 9 0 0 0 .69 -3.44" /><path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92" /><path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69" /><path d="M9 12l2 2l4 -4" /></svg>`;
+            const errorSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.875 6.27c.7 .398 1.13 1.143 1.125 1.948v7.284c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27a2.225 2.225 0 0 1 -1.158 -1.948v-7.285c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98a2.33 2.33 0 0 1 2.25 0l6.75 3.98h-.033z" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>`;
+            iconWrap.innerHTML = type === 'success' ? successSVG : errorSVG;
+            // add a neon ring behind the icon for subtle glow
+            const ring = document.createElement('div');
+            ring.className = 'icon-ring';
+            if (type === 'success') {
+                ring.style.background = 'radial-gradient(circle at 30% 30%, rgba(60,184,255,0.25), rgba(0,220,138,0.06))';
+            } else {
+                ring.style.background = 'radial-gradient(circle at 30% 30%, rgba(238,108,255,0.26), rgba(255,102,102,0.06))';
+            }
+            iconWrap.style.position = 'relative';
+            iconWrap.appendChild(ring);
+
+            const body = document.createElement('div');
+            body.className = 'toast-body';
+            // title + text to make toast feel more app-like
+            const titleEl = document.createElement('div');
+            titleEl.className = 'toast-title';
+            titleEl.textContent = type === 'success' ? 'Success' : 'Warning';
+            const textEl = document.createElement('div');
+            textEl.className = 'toast-text';
+            textEl.textContent = message;
+            body.appendChild(titleEl);
+            body.appendChild(textEl);
+
+            const progressWrap = document.createElement('div');
+            progressWrap.className = 'toast-progress';
+            const progressBar = document.createElement('i');
+            progressWrap.appendChild(progressBar);
+
+            toast.appendChild(iconWrap);
+            toast.appendChild(body);
+            toast.appendChild(progressWrap);
+
+            // close button
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'toast-close';
+            closeBtn.setAttribute('aria-label','Dismiss notification');
+            closeBtn.innerHTML = '✕';
+            toast.appendChild(closeBtn);
+
+            // keep at most 4 toasts visible
+            if (toastContainer.children.length >= 4) {
+                const last = toastContainer.lastElementChild;
+                if (last) last.remove();
+            }
+
+            // add to container
+            toastContainer.prepend(toast);
+
+            // accessibility: announce
+            toastContainer.setAttribute('aria-live', 'polite');
+
+            // small delay to ensure element is in DOM
+            requestAnimationFrame(() => {
+                // show with animation
+                toast.classList.add('show');
+
+                    // if user prefers reduced motion, don't animate progress
+                    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    if (!reduce) {
+                        // set progress bar color per type
+                        if (type === 'success') {
+                            progressBar.style.background = 'linear-gradient(90deg, rgba(0,220,138,1), rgba(60,184,255,0.95))';
+                        } else {
+                            progressBar.style.background = 'linear-gradient(90deg, rgba(238,108,255,1), rgba(255,102,102,0.95))';
+                        }
+                        // start progress at full and animate to zero using CSS transform
+                        progressBar.style.transform = 'scaleX(1)';
+                        progressBar.style.transition = `transform ${duration}ms linear`;
+                        requestAnimationFrame(() => { progressBar.style.transform = 'scaleX(0)'; });
+                    } else {
+                        progressBar.style.display = 'none';
+                    }
+            });
+
+            // remove after duration (use hide animation)
+            const removeToast = () => {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 320);
+            };
+
+            const timeoutId = setTimeout(removeToast, duration);
+
+            // allow click to dismiss early
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                clearTimeout(timeoutId);
+                removeToast();
+            });
+            toast.addEventListener('click', () => {
+                clearTimeout(timeoutId);
+                removeToast();
+            });
         }
 
         function calculateDimensions(event) {
@@ -744,7 +893,7 @@
             const volumeLiters = parseFloat(volumeInput.value);
             
             if (isNaN(volumeLiters) || volumeLiters <= 0 || volumeInput.value.trim() === '') {
-                showNotification('⚠️  Fill the text input to continue', 'error', 3500);
+                showNotification('Fill the text input to continue', 'error', 3500);
                 volumeInput.focus();
                 return;
             }
@@ -784,7 +933,7 @@
             `;
 
             // Show success notification
-            showNotification('✅  Calculation complete!', 'success', 3500);
+            showNotification('Calculation complete!', 'success', 3500);
         }
 
         calculateBtn.addEventListener('click', calculateDimensions);
