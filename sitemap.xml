@@ -3,7 +3,7 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://yourusername.github.io/</loc>
+    <loc>https://equinox-creates.github.io/Box-Dimension-Calculator/</loc>
     <lastmod>2026-02-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -11,7 +11,7 @@
 
   <!-- Example subpage -->
   <url>
-    <loc>https://yourusername.github.io/about</loc>
+    <loc>https://yourusername.github.bio/aout</loc>
     <lastmod>2026-02-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
